@@ -100,7 +100,6 @@ def tn_chinese(text):
     return ''.join(words)
 
 def g2p_cn(text):
-    text = rewrite_before_number_to_chinese(text)
     res_text=["<sos/eos>"]
     seg_list = jieba.cut(text)
     for seg in seg_list:
