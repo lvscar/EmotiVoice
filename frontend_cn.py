@@ -100,6 +100,7 @@ def tn_chinese(text):
     return ''.join(words)
 
 def g2p_cn(text):
+    text = rewrite_before_number_to_chinese(text)
     res_text=["<sos/eos>"]
     seg_list = jieba.cut(text)
     for seg in seg_list:
@@ -119,6 +120,30 @@ def g2p_cn(text):
     #res_text.pop()
     res_text.append("<sos/eos>")
     return " ".join(res_text)
+
+def rewrite_before_number_to_chinese(text):
+
+    def remove_spaces(text):
+        text = re.sub(r'(\d+)\s+年', r'\1年', text)
+        text = re.sub(r'(\d+)\s+%', r'\1%', text)
+        return text
+    
+    def format_year(text):
+        year_pattern = r'([12]\d{3})年'
+        def replace_year(match):
+            year = match.group(1)
+            formatted_year = ' '.join(['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'][int(digit)] for digit in year)
+            return formatted_year + '年'
+        return re.sub(year_pattern, replace_year, text)
+
+    def format_percentage(text):
+        percentage_pattern = r'(\d+)%'
+        return re.sub(percentage_pattern, r'百分之\1', text)
+
+    text = remove_spaces(text)
+    text = format_year(text)
+    text = format_percentage(text)
+    return text
 
 if __name__ == "__main__":
     import sys
