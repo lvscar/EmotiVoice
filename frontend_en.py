@@ -66,8 +66,8 @@ def get_eng_phoneme(text, g2p, lexicon, pad_sos_eos=True):
                         phones += ["engsp1"]
             elif phone == " ":
                 continue
-            elif phones:
-                phones.pop() # pop engsp1
+            elif phones and w != "-":
+                phones.pop() # pop engsp1 unless deliberate pause ("-")
                 phones.append("engsp4")
     if phones and "engsp" in phones[-1]:
         phones.pop()

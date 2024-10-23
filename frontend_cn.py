@@ -139,20 +139,23 @@ def rewrite_before_number_to_chinese(text):
         percentage_pattern = r'(\d+)%'
         return re.sub(percentage_pattern, r'百分之\1', text)
 
-    def insert_spaces_between_uppercase(text): #fix English acronym like "AI"
-        pattern = r'(\s)([A-Z]+)(\s)'
-        def add_spaces(match):
-            space_before = match.group(1)  
-            uppercase_letters = match.group(2)  
-            space_after = match.group(3)  
-            spaced_uppercase = ' '.join(list(uppercase_letters))
-            return f'{space_before}{spaced_uppercase}{space_after}'
-        return re.sub(pattern, add_spaces, text)
+    def insert_pause_between_uppercase(text): #fix English acronym like "AI"
+        pattern = r'(?<=[\s\u4e00-\u9fff:,.!?;，。！？；])([A-Z]+)(?=[\s\u4e00-\u9fff:,.!?;，。！？；])'
+        result = re.sub(pattern, lambda m: f" {'-'.join(list(m.group(0)))} " , text) #use "-" for deliberate pause.
+        return result
+
+    def recognize_acronym(text):
+        def split_match(match):
+            word = match.group()
+            return '-'.join(re.findall(r'[A-Z][a-z]*|[a-z]+', word)) 
+        return re.sub(r'\b[A-Za-z]*[A-Z][A-Za-z]*\b', split_match, text)
 
     text = remove_spaces(text)
     text = format_year(text)
     text = format_percentage(text)
-    text = insert_spaces_between_uppercase(text)
+    text = recognize_acronym(text)
+    text = insert_pause_between_uppercase(text)
+
     return text
 
 if __name__ == "__main__":
